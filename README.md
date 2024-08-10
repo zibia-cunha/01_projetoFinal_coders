@@ -4,7 +4,7 @@
 ### SISTEMA DE CONTROLE FINANCEIRO
 * Desenvolver um pequeno "sistema financeiro" para gerenciar algumas operações! Este sistema deverá receber movimentações financeiras e armazená-las em um arquivo csv, ou json!
   
-O sistema deverá ser capaz de realizar as seguintes operações:
+#### O sistema deverá ser capaz de realizar as seguintes operações:
 
 * Criar novos registros e identificar a data em que o registro foi feito, qual foi o tipo de movimentação, e seu valor.
 * Os tipos de registros são três: despesas, receita ou investimento.
