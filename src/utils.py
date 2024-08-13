@@ -84,13 +84,13 @@ def listar_movimentacoes(database_path="database"):
 
 
 def calcular_rendimento(taxa: float = 0.003,
-                        valor: float = 0,
-                        data_anterior=None,
-                        data_atual=None):
+                        valor: float = 1580,
+                        data_anterior=datetime(2005, 4, 6),
+                        data_atual=datetime(2022, 1, 5)):
     """
     Cálculo do rendimento de investimento
     M = C * (1 + i)^t
-    t = contar_dias_entre_datas(data_anterior,data_atual)
+    t = contar_dias_entre_datas(data_anterior, data_atual)
 
     Parameters:
         taxa (float): taxa de rendimento
@@ -101,6 +101,21 @@ def calcular_rendimento(taxa: float = 0.003,
     Returns:
         rendimento (float): rendimento do investimento
     """
+    
+    # Calcula a diferença em dias entre as duas datas
+    dias = (data_atual - data_anterior).days
+
+    # Calcula o montante final M = C * (1 + i)^t
+    montante = valor * (1 + taxa) ** dias
+
+    # O rendimento é a diferença entre o montante final e o valor inicial
+    rendimento = montante - valor
+
+    return rendimento
+
+# Chamando a função
+rendimento = calcular_rendimento()
+print(f"Rendimento do investimento: R${rendimento:.2f}")
 
 
 def deletar_registro(indice: int, tipo: str,
