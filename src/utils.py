@@ -1,3 +1,4 @@
+
 from datetime import datetime
 data_atual = datetime.now()
 data_atual_formatada = data_atual.strftime('%d/%m/%Y')
@@ -17,7 +18,7 @@ def incluir_de_csv(path, **parametros):
 
 def incluir_registros_base_dados(base_dados):
     """
-    Inclui registros na base de dados
+    Inclui registros na base de dados com um identificador único.
     """
     tipo_de_registros = {1: 'Receita', 2: 'Despesas', 3: 'Investimento'}
 
@@ -28,32 +29,30 @@ def incluir_registros_base_dados(base_dados):
 
     if registro.isdigit() and int(registro) in tipo_de_registros:
         data_atual = datetime.today().strftime('%d/%m/%Y')
-        valor = float(input(f"Digite o valor de {
-                      tipo_de_registros[int(registro)]} que deseja inserir:"))
+        valor = float(input(f"Digite o valor de {tipo_de_registros[int(registro)]} que deseja inserir:"))
 
         if tipo_de_registros[int(registro)] == 'Despesas':
-            valor = -abs(valor)  # Armazena como negativo
+            valor = -abs(valor)  
 
-        if data_atual not in base_dados:
-            base_dados[data_atual] = {'Registros': {
-                'Receita': 0, 'Despesas': 0, 'Investimento': 0}}
+        # identificador único para cada registro
+        id_registro =  id_registro = len(base_dados) + 1
 
-        tipo_registro = tipo_de_registros[int(registro)]
-        base_dados[data_atual]['Registros'][tipo_registro] += valor
+        # registro
+        base_dados[id_registro] = {
+            'Data': data_atual,
+            'Tipo': tipo_de_registros[int(registro)],
+            'Valor': valor
+        }
 
         print("*" * 60)
-        print(f"Registro de {tipo_registro}, no valor de {
-              valor} cadastrado com sucesso")
+        print(f"Registro de {tipo_de_registros}, no valor de {valor} cadastrado com sucesso")
         print("*" * 60)
 
-        continuarCadastro = input(
-            "\nDeseja continuar cadastrando registros? S/N ")
+        continuarCadastro = input("\nDeseja continuar cadastrando registros? S/N ")
         if continuarCadastro.upper() == "S":
             incluir_registros_base_dados(base_dados)
     else:
         print("Opção inválida")
-
-    # criar_registro_movimentacao(base_dados)
 
     return base_dados
 
@@ -115,22 +114,18 @@ def deletar_registro(indice: int, tipo: str,
     """
 
 
-def atualizar_registro(indice: int,
-                       tipo: str,
-                       database_path: str,
-                       data=datetime.today().strftime('%d/%m/%Y'),
-                       **parametros):
-    """
-    atualiza o valor ou o tipo de uma movimentação com base na data de registro
-
-    Parameters:
-        dia (int): dia da movimentação
-        mes (int): mês da movimentação
-        ano (int): ano da movimentação
-        valor (float): valor da movimentação
-        tipo (str): tipo da movimentação
-    Returns:
-    """
+def atualizar_registro(dicionario):
+    identificador = input('insira o identificador')
+    if identificador in dicionario:
+        novo_tipo = input('Insira o novo tipo: ').capitalize()
+        dicionario[identificador]['Tipo'] = novo_tipo
+        novo_valor = float('Insira o novo valor: ')
+        dicionario[identificador]['Valor'] = novo_valor
+        
+        dicionario[identificador]['Data'] = datetime.now().strftime('%d/%m/%Y')
+        return f"Registro {identificador} atualizado com sucesso."
+    else:
+        return f"Registro {identificador} não encontrado."
 
 
 def agrupar_movimentacoes(movimentacoes, agrupar_por):

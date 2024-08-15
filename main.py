@@ -15,9 +15,10 @@ def main():
         4: "Listar Movimentações",
         5: "Calcular Rendimento",
         6: "Deletar Registro",
-        7: "Agrupar Movimentações",
-        8: "Exportar Relatório JSON",
-        9: "Exportar Reltório CSV",
+        7: "Atualizar Registro",
+        8: "Agrupar Movimentações",
+        9: "Exportar Relatório JSON",
+        10: "Exportar Reltório CSV",
         0: "Sair"
     }
     acoes = {
@@ -44,6 +45,9 @@ def main():
             break
         elif escolha in acoes:
             if escolha == '1':
+                print(f"\nExecutando ação: {dicionario_nomes[int(escolha)]}")
+                base_dados = acoes[escolha](base_dados)
+            elif escolha == '7':
                 print(f"\nExecutando ação: {dicionario_nomes[int(escolha)]}")
                 base_dados = acoes[escolha](base_dados)
             else:
