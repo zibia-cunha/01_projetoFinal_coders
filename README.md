@@ -1,7 +1,7 @@
 # Santander Coders 2024 - Turma 1174
 ## Projeto Final - Lógica de Programação II
 
-### SISTEMA DE CONTROLE FINANCEIRO
+### SISTEMA DE CONTROLE FINANCEIRO EM PYTHON
 * Desenvolver um pequeno "sistema financeiro" para gerenciar algumas operações! Este sistema deverá receber movimentações financeiras e armazená-las em um arquivo csv, ou json!
   
 #### O sistema deverá ser capaz de realizar as seguintes operações:
