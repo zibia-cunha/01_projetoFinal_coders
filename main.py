@@ -1,7 +1,8 @@
+#%%
 from src.utils import *
 
 PATH = "./database"
-
+#%%
 
 def main():
     """
@@ -11,27 +12,25 @@ def main():
     dicionario_nomes = {
         1: "Incluir Registros",
         2: "Incluir Registros de CSV",
-        3: "Criar Regstro de Movimentação",
-        4: "Listar Movimentações",
-        5: "Calcular Rendimento",
-        6: "Deletar Registro",
-        7: "Atualizar Registro",
-        8: "Agrupar Movimentações",
-        9: "Exportar Relatório JSON",
-        10: "Exportar Reltório CSV",
+        3: "Listar Movimentações",
+        4: "Calcular Rendimento",
+        5: "Deletar Registro",
+        6: "Atualizar Registro",
+        7: "Agrupar Movimentações",
+        8: "Exportar Relatório JSON",
+        9: "Exportar Reltório CSV",
         0: "Sair"
     }
     acoes = {
         '1': incluir_registros_base_dados,
         '2': incluir_de_csv,
-        '3': criar_registro_movimentacao,
-        '4': listar_movimentacoes,
-        '5': calcular_rendimento,
-        '6': deletar_registro,
-        '7': atualizar_registro,
-        '8': agrupar_movimentacoes,
-        '9': exportar_relatorio_json,
-        '10': exportar_relatorio_csv
+        '3': listar_movimentacoes,
+        '4': atualizacao_do_rendimento,
+        '5': deletar_registro,
+        '6': atualizar_registro,
+        '7': agrupar_movimentacoes,
+        '8': exportar_relatorio_json,
+        '9': exportar_relatorio_csv
     }
 
     base_dados = {}
@@ -47,6 +46,7 @@ def main():
             if escolha == '1':
                 print(f"\nExecutando ação: {dicionario_nomes[int(escolha)]}")
                 base_dados = acoes[escolha](base_dados)
+                criar_registro_movimentacao(base_dados, database_path="database")
             elif escolha == '7':
                 print(f"\nExecutando ação: {dicionario_nomes[int(escolha)]}")
                 base_dados = acoes[escolha](base_dados)
@@ -54,6 +54,8 @@ def main():
                 acoes[escolha](base_dados)
         else:
             print("Ação inválida. Por favor, escolha uma ação válida.")
-
+#%%
 
 main()
+
+# %%
