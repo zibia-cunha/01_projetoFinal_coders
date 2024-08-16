@@ -1,4 +1,4 @@
-
+import json
 from datetime import datetime
 data_atual = datetime.now()
 data_atual_formatada = data_atual.strftime('%d/%m/%Y')
@@ -20,39 +20,57 @@ def incluir_registros_base_dados(base_dados):
     """
     Inclui registros na base de dados com um identificador único.
     """
+    arquivo = 'base_dados.json'
+    try:
+        with open(arquivo, 'r') as file:
+            base_dados = json.load(file)
+    except FileNotFoundError:
+        base_dados = {}
+
     tipo_de_registros = {1: 'Receita', 2: 'Despesas', 3: 'Investimento'}
 
-    for chave, descricao in tipo_de_registros.items():
-        print(f"{chave}. {descricao}")
+    while True:
+        for chave, descricao in tipo_de_registros.items():
+            print(f"{chave}. {descricao}")
 
-    registro = input("\nQual o tipo de registro deseja inserir? ")
+        registro = input("\nQual o tipo de registro deseja inserir? ")
 
-    if registro.isdigit() and int(registro) in tipo_de_registros:
-        data_atual = datetime.today().strftime('%d/%m/%Y')
-        valor = float(input(f"Digite o valor de {tipo_de_registros[int(registro)]} que deseja inserir:"))
+        if registro.isdigit() and int(registro) in tipo_de_registros:
+            data_atual = datetime.today().strftime('%d/%m/%Y')
+            valor = float(input(f"Digite o valor de {tipo_de_registros[int(registro)]} que deseja inserir:"))
 
-        if tipo_de_registros[int(registro)] == 'Despesas':
-            valor = -abs(valor)  
+            if tipo_de_registros[int(registro)] == 'Despesas':
+                valor = -abs(valor)  
 
-        # identificador único para cada registro
-        id_registro =  id_registro = len(base_dados) + 1
+            
+            id_registro = len(base_dados) + 1
 
-        # registro
-        base_dados[id_registro] = {
-            'Data': data_atual,
-            'Tipo': tipo_de_registros[int(registro)],
-            'Valor': valor
-        }
+            
+            while str(id_registro) in base_dados:
+                id_registro += 1
 
-        print("*" * 60)
-        print(f"Registro de {tipo_de_registros}, no valor de {valor} cadastrado com sucesso")
-        print("*" * 60)
+            
+            base_dados[id_registro] = {
+                'Data': data_atual,
+                'Tipo': tipo_de_registros[int(registro)],
+                'Valor': valor
+            }
 
-        continuarCadastro = input("\nDeseja continuar cadastrando registros? S/N ")
-        if continuarCadastro.upper() == "S":
-            incluir_registros_base_dados(base_dados)
-    else:
-        print("Opção inválida")
+            print("*" * 60)
+            print(f"Registro de {tipo_de_registros[int(registro)]}, no valor de {valor} cadastrado com sucesso")
+            print("*" * 60)
+
+            continuarCadastro = input("\nDeseja continuar cadastrando registros? S/N ")
+            if continuarCadastro.upper() != "S":
+                break
+        else:
+            print("Opção inválida")
+
+
+    with open(arquivo, 'w') as file:
+        json.dump(base_dados, file, indent=4)
+
+    print(f"Dados salvos no arquivo '{arquivo}'.")
 
     return base_dados
 
