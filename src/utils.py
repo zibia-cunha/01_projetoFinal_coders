@@ -354,6 +354,34 @@ def atualizar_registro(database_path, novo_tipo, valor, id_registro):
 # receitas/despesas em um determinado mês, o rendimento médio dos investimentos em um dado período etc.
 
 def agrupar_movimentacoes(movimentacoes, agrupar_por):
+    agrupamento = {}
+
+    if agrupar_por == 'tipo':
+        for movimentacao in movimentacoes:
+            tipo = movimentacao['Tipo']
+            valor = float(movimentacao['Valor'])
+
+            if tipo not in agrupamento:
+                agrupamento[tipo] = valor
+            else:
+                agrupamento[tipo] += valor
+
+    elif agrupar_por == 'mes':
+        for movimentacao in movimentacoes:
+            ano_mes = f"{movimentacao['Ano']}-{movimentacao['Mes']:02d}"
+            valor = float(movimentacao['Valor'])
+
+            if ano_mes not in agrupamento:
+                agrupamento[ano_mes] = valor
+            else:
+                agrupamento[ano_mes] += valor
+
+    else:
+        print(f"Critério de agrupamento '{agrupar_por}' inválido. Escolha 'tipo' ou 'mes'.")
+        return agrupamento
+        
+
+        
     # TODO
     """
     agrupa movimentações por tipo
