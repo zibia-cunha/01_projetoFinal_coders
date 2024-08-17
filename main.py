@@ -47,6 +47,17 @@ def main():
                 print(f"\nExecutando ação: {dicionario_nomes[int(escolha)]}")
                 base_dados = acoes[escolha](base_dados)
                 criar_registro_movimentacao(base_dados, database_path="database")
+            elif escolha == '2':
+                print(f"\nExecutando ação: {dicionario_nomes[int(escolha)]}")
+                path = input("Insira o caminho do arquivo csv: ")
+                base_dados = acoes[escolha](path)
+                criar_registro_movimentacao(base_dados, database_path="database")
+            elif escolha == '3':
+                print(f"\nExecutando ação: {dicionario_nomes[int(escolha)]}")
+                acoes[escolha](base_dados)
+            elif escolha == '4':
+                print(f"\nExecutando ação: {dicionario_nomes[int(escolha)]}")
+                acoes[escolha]("./database")
             elif escolha == '7':
                 print(f"\nExecutando ação: {dicionario_nomes[int(escolha)]}")
                 base_dados = acoes[escolha](base_dados)
