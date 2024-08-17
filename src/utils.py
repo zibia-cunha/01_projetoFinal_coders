@@ -1,13 +1,37 @@
 #%%
-from datetime import datetime
+from datetime import *
 import os
 import csv
+import random
 
 # data_atual = datetime.now()
 # data_atual_formatada = data_atual.strftime('%d/%m/%Y')
 
+def generate_random_data(num_entries, start_date):
+    data = []
+    current_date = start_date
 
-def incluir_de_csv(path, **parametros):
+    for _ in range(num_entries):
+        # Gerar um valor aleatório
+        value = round(random.uniform(100, 10000), 2)
+
+        # Escolher aleatoriamente o tipo de transação
+        transaction_type = random.choice(['Receita', 'Despesa', 'Investimento'])
+
+        # Adicionar a entrada à lista de dados
+        data.append([current_date.strftime('%d/%m/%Y'), value, transaction_type])
+
+        # Incrementar a data para a próxima entrada
+        current_date += timedelta(days=1)
+
+    headers = ['Data', 'Valor', 'Tipo de Transação']
+
+    with open('test_data.csv', mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(headers)
+        writer.writerows(data)
+#%%
+def incluir_de_csv(path):
     """
     inclui um registro manualmente
 
@@ -16,7 +40,22 @@ def incluir_de_csv(path, **parametros):
         valor (float): valor da movimentação
         data (str): data da movimentação
     """
-    pass
+    
+    data = read_csv(path)
+    regsitros = {}
+    for nn, registro in enumerate(data):
+        tipo = registro['Tipo de Transação']
+        if tipo in ["Receita", "Despesa"]:
+            valor = registro['Valor']
+            data = registro['Data']
+            regsitros[nn] = {'Data': data, 'Tipo': tipo, 'Valor': valor, "Ano": int(data.split('/')[0]), "Mes": int(data.split('/')[1]), "Dia": int(data.split('/')[2])}
+        else:
+            valor = registro['Valor']
+            data = registro['Data']
+            taxa = 0.003
+            regsitros[nn] = {'Data': data, 'Tipo': tipo, 'Valor': valor, "Ano": int(data.split('/')[0]), "Mes": int(data.split('/')[1]), "Dia": int(data.split('/')[2]), "Taxa": taxa}
+
+    return regsitros
 
 
 def incluir_registros_base_dados(base_dados):
@@ -355,7 +394,7 @@ def atualizar_registro(database_path, novo_tipo, valor, id_registro):
 
 def agrupar_movimentacoes(movimentacoes, agrupar_por):
    
-     agrupamento = {}
+    agrupamento = {}
 
     if agrupar_por == 'tipo':
         for movimentacao in movimentacoes:
@@ -383,12 +422,6 @@ def agrupar_movimentacoes(movimentacoes, agrupar_por):
 
     return agrupamento
         
-    # TODO
-    """
-    agrupa movimentações por tipo
-
-    """
-    pass
 
 
 def exportar_relatorio_json(movimentacoes, formato='json', nome_arquivo='relatorio'):
