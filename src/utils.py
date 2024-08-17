@@ -1,3 +1,4 @@
+#%%
 from datetime import datetime
 import os
 import csv
@@ -259,9 +260,9 @@ def atualizacao_do_rendimento(database="../database"):
                                              valor=float(ultimo_investimento["Montante"]),
                                             data_anterior=dia_anterior, data_atual=dia_atual)
 
-            montante = float(ultimo_investimento["Montante"]) + float(investimento["Valor"]) + float(ultimo_investimento["Rendimento"]) 
+            montante = round(float(ultimo_investimento["Montante"]) + float(investimento["Valor"]) + float(ultimo_investimento["Rendimento"]), 2)
 
-            investimentos[indice]["Rendimento"] = rendimento
+            investimentos[indice]["Rendimento"] = round(rendimento, 2)
             investimentos[indice]["Montante"] = montante
     exportar_relatorio_csv(investimentos, tipo="investimento", path=database, nome_arquivo="investimentos.csv")
 
@@ -321,26 +322,31 @@ def deletar_registro(indice: int, tipo: str,
 
 
 
-def atualizar_registro(dicionario):
+def atualizar_registro(database_path, novo_tipo, valor, id_registro):
     ## TODO implementar a função de atualizar registro
+    data_atual_formatada = datetime.now().strftime('%d/%m/%Y')
 
-    # Atualizar os registros de forma que o novo registro tenha a data do momento em 
-    # a atualização é feita. a função deve ainda chamar a função "atualizacao_do_rendimento" caso
-    # a atualização seja feita em investimentos.
+    if novo_tipo.lower() in ['receita', 'despesa']:
+        arquivo = "movimentacoes.csv"
+        registros = read_csv(f'./{database_path}/{arquivo}')
+    elif novo_tipo.lower() == 'investimento':
+        arquivo = "investimentos.csv"
+        registros = read_csv(f'./{database_path}/{arquivo}')
+    else:
+        print('Tipo de movimentação inválida.',
+              'Escolha entre: "receita", "despesa" ou "investimento"', sep='\n')
 
-    # identificador = input('insira o identificador')
-    # if identificador in dicionario:
-    #     novo_tipo = input('Insira o novo tipo: ').capitalize()
-    #     dicionario[identificador]['Tipo'] = novo_tipo
-    #     novo_valor = float('Insira o novo valor: ')
-    #     dicionario[identificador]['Valor'] = novo_valor
-        
-    #     dicionario[identificador]['Data'] = datetime.now().strftime('%d/%m/%Y')
-    #     return f"Registro {identificador} atualizado com sucesso."
-    # else:
-    #     return f"Registro {identificador} não encontrado."
-    pass
+    if novo_tipo.lower() == 'despesa':
+        valor = -abs(valor)
+    for index, registro in enumerate(registros):
+        if int(registro['id']) == id_registro:
+            registro['Valor'] = valor
+            registro['Data'] = data_atual_formatada 
+            registro['Tipo'] = novo_tipo
 
+    registros = exportar_relatorio_csv(registros, novo_tipo, path=database_path, nome_arquivo=arquivo)
+    if novo_tipo.lower() == 'investimento':
+        atualizacao_do_rendimento(database_path)
 
 #Crie pelo menos uma função de agrupamento, que seja capaz de 
 # mostrar o total de valor baseado em alguma informação (mês, tipo...). 
