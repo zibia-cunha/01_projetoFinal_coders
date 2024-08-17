@@ -354,7 +354,8 @@ def atualizar_registro(database_path, novo_tipo, valor, id_registro):
 # receitas/despesas em um determinado mês, o rendimento médio dos investimentos em um dado período etc.
 
 def agrupar_movimentacoes(movimentacoes, agrupar_por):
-    agrupamento = {}
+   
+     agrupamento = {}
 
     if agrupar_por == 'tipo':
         for movimentacao in movimentacoes:
@@ -378,9 +379,9 @@ def agrupar_movimentacoes(movimentacoes, agrupar_por):
 
     else:
         print(f"Critério de agrupamento '{agrupar_por}' inválido. Escolha 'tipo' ou 'mes'.")
-        return agrupamento
-        
+        return {}
 
+    return agrupamento
         
     # TODO
     """
