@@ -113,7 +113,7 @@ def incluir_registros_base_dados(base_dados):
                 'Taxa': taxa}
 
         print("*" * 60)
-        print(f"Registro de {tipo_de_registros}, no valor de {valor} cadastrado com sucesso")
+        print(f"Registro de {tipo_de_registros[int(registro)]}, no valor de {valor} cadastrado com sucesso")
         print("*" * 60)
 
         continuarCadastro = input("\nDeseja continuar cadastrando registros? S/N ")
@@ -182,7 +182,6 @@ def criar_registro_movimentacao(parametros: dict, database_path="database"):
                         entrada['Valor'], entrada['Ano'], entrada['Mes'], 
                         entrada['Dia'], montante, rendimento]]
             with open(f"{database_path}/investimentos.csv", 'a+', newline='') as file:
-
                 writer = csv.writer(file, delimiter=',', lineterminator='\n')
                 writer.writerows(conteudo)
             print(f"Registro {conteudo} inserido com sucesso no arquivo {database_path}/investimentos.csv")
@@ -191,7 +190,7 @@ def criar_registro_movimentacao(parametros: dict, database_path="database"):
                 'Escolha entre: "receita", "despesa" ou "investimento"', sep='\n')
 
 
-def listar_movimentacoes(database_path="database", data=None, tipo=None):
+def listar_movimentacoes(database_path="./database", data=None, tipo=None):
     """
     Lista as movimentações
 
@@ -327,8 +326,7 @@ def read_csv(path):
         print(f'Arquivo {path} não encontrado.')
         return None
 
-def deletar_registro(indice: int, tipo: str,
-                     database_path: str):
+def deletar_registro(database_path):
     """
     Determina o tipo de movimentação e deleta o registro correspondente ao indice
 
@@ -337,6 +335,9 @@ def deletar_registro(indice: int, tipo: str,
         tipo (str): tipo de movimentação
         database_path (str): caminho do banco de dados
     """
+    indice = int(input('Insira o índice do registro a ser deletado: '))
+    tipo = input('Insira o tipo de movimentação (receita, despesa ou investimento): ')
+
     if tipo.lower() in ['receita', 'despesa']:
         arquivo = "movimentacoes.csv"
         registros = read_csv(f'./{database_path}/{arquivo}')
@@ -347,22 +348,38 @@ def deletar_registro(indice: int, tipo: str,
         print('Tipo de movimentação inválida.',
               'Escolha entre: "receita", "despesa" ou "investimento"', sep='\n')
     
-    for index, registro in enumerate(registros):
-        if int(registro['id']) == indice:
-            registros.pop(index)
-            break
+    indices = [int(i['id']) for i in registros]
+    if indice in indices:
+        for index, registro in enumerate(registros):
+            if int(registro['id']) == indice:
+                registros.pop(index)
+                print(f"{tipo} {registro} deletado com sucesso.")
+                break
+    else:
+        print(f"\nRegistro {indice} não encontrado.\n")
+        
     # atualizar indices
-    for index, registro in enumerate(registros):
-        registro['id'] = f'{index+1:07d}'
-    # exportar para csv
+    # for index, registro in enumerate(registros):
+    #     registro['id'] = f'{index+1:07d}'
+    # # exportar para csv
+
+    
 
     exportar_relatorio_csv(registros, tipo, path=database_path, nome_arquivo=arquivo)
     return registros
 
 
 
-def atualizar_registro(database_path, novo_tipo, valor, id_registro):
-    ## TODO implementar a função de atualizar registro
+def atualizar_registro(database_path):
+
+
+    novo_tipo = input('Insira o novo tipo de movimentação (receita, despesa ou investimento): ')
+    
+    valor = float(input('Insira o novo valor da movimentação: '))
+    
+    id_registro = int(input('Insira o id do registro a ser atualizado: '))
+
+
     data_atual_formatada = datetime.now().strftime('%d/%m/%Y')
 
     if novo_tipo.lower() in ['receita', 'despesa']:
@@ -392,36 +409,36 @@ def atualizar_registro(database_path, novo_tipo, valor, id_registro):
 # Esta função é de livre escolha do grupo. Pode ser, por exemplo, a média de 
 # receitas/despesas em um determinado mês, o rendimento médio dos investimentos em um dado período etc.
 
-def agrupar_movimentacoes(movimentacoes, agrupar_por):
-   
-    agrupamento = {}
+def agrupar_movimentacoes(database_path):
 
-    if agrupar_por == 'tipo':
-        for movimentacao in movimentacoes:
-            tipo = movimentacao['Tipo']
-            valor = float(movimentacao['Valor'])
+    tipo_de_registros = {1: 'Receita', 2: 'Despesa', 3: 'Investimento'}
 
-            if tipo not in agrupamento:
-                agrupamento[tipo] = valor
-            else:
-                agrupamento[tipo] += valor
+    for chave, descricao in tipo_de_registros.items():
+        print(f"{chave}. {descricao}")
+    tipo = input('Qual o tipo de registro que deseja agrupar ?')
+    tipo_agrupamento = tipo_de_registros[int(tipo)]
+     
+    if tipo_agrupamento in ['Receita', 'Despesa']:
+        arquivo = "movimentacoes.csv"
+        registros = read_csv(f'{database_path}/{arquivo}')
+        #print(registros)
+    
+    elif tipo_agrupamento == 'Investimento':
+        arquivo = "investimentos.csv"
+        registros = read_csv(f'{database_path}/{arquivo}')
+        #print(registros)
 
-    elif agrupar_por == 'mes':
-        for movimentacao in movimentacoes:
-            ano_mes = f"{movimentacao['Ano']}-{movimentacao['Mes']:02d}"
-            valor = float(movimentacao['Valor'])
+        agrupamentoinv_dia = {}
 
-            if ano_mes not in agrupamento:
-                agrupamento[ano_mes] = valor
-            else:
-                agrupamento[ano_mes] += valor
-
-    else:
-        print(f"Critério de agrupamento '{agrupar_por}' inválido. Escolha 'tipo' ou 'mes'.")
-        return {}
-
-    return agrupamento
-        
+    for entrada in registros:
+        data = entrada['Data']  
+        valor = float(entrada['Valor'])
+        tipo = entrada['Tipo']
+        agrupamentoinv_dia[data] = {tipo_agrupamento: 0}
+        if tipo == tipo_agrupamento:
+            agrupamentoinv_dia[data][tipo_agrupamento] += valor
+    print(agrupamentoinv_dia)
+    #agrupar por investimento         
 
 
 def exportar_relatorio_json(movimentacoes, formato='json', nome_arquivo='relatorio'):
