@@ -7,33 +7,10 @@ import random
 # data_atual = datetime.now()
 # data_atual_formatada = data_atual.strftime('%d/%m/%Y')
 
-def generate_random_data(num_entries, start_date):
-    data = []
-    current_date = start_date
-
-    for _ in range(num_entries):
-        # Gerar um valor aleatório
-        value = round(random.uniform(100, 10000), 2)
-
-        # Escolher aleatoriamente o tipo de transação
-        transaction_type = random.choice(['Receita', 'Despesa', 'Investimento'])
-
-        # Adicionar a entrada à lista de dados
-        data.append([current_date.strftime('%d/%m/%Y'), value, transaction_type])
-
-        # Incrementar a data para a próxima entrada
-        current_date += timedelta(days=1)
-
-    headers = ['Data', 'Valor', 'Tipo de Transação']
-
-    with open('test_data.csv', mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(headers)
-        writer.writerows(data)
 #%%
-def incluir_de_csv(path):
+def incluir_registros_de_arquivo_csv(path):
     """
-    inclui um registro manualmente
+    inclui um registro de um arquivo csv
 
     Returns:
         tipo (str): tipo de movimentação
@@ -206,7 +183,6 @@ def listar_movimentacoes(database_path="./database", data=None, tipo=None):
         tipo = input('Insira o tipo de movimentação (receita, despesa ou investimento):')
     
     investimentos = read_csv(f'{database_path}/investimentos.csv')
-    print(investimentos)
     movimentacoes = read_csv(f'{database_path}/movimentacoes.csv')
     if data:
         if tipo.lower() in ['receita', 'despesa']:
@@ -214,12 +190,14 @@ def listar_movimentacoes(database_path="./database", data=None, tipo=None):
             for movimentacao in movimentacoes:
                 if movimentacao['Tipo'].lower() == tipo.lower() and movimentacao['Data'] == data:
                     registros.append(movimentacao)
+            print_tabular_data(registros)
             return registros
         else:
             registros = []
             for movimentacao in investimentos:
                 if movimentacao['Data'] == data:
                     registros.append(movimentacao)
+            print_tabular_data(registros)
             return registros
     else:
         if tipo.lower() in ['receita', 'despesa']:
@@ -227,8 +205,10 @@ def listar_movimentacoes(database_path="./database", data=None, tipo=None):
             for movimentacao in movimentacoes:
                 if movimentacao['Tipo'].lower() == tipo.lower():
                     registros.append(movimentacao)
+            print_tabular_data(registros)
             return registros
         else:
+            print_tabular_data(investimentos)
             return investimentos
 
 
@@ -262,7 +242,6 @@ def calcular_rendimento(taxa: float = 0.003,
     rendimento = montante - valor
 
     return rendimento
-
 
 
 def atualizacao_do_rendimento(database="../database"):
@@ -302,8 +281,11 @@ def atualizacao_do_rendimento(database="../database"):
 
             investimentos[indice]["Rendimento"] = round(rendimento, 2)
             investimentos[indice]["Montante"] = montante
-    exportar_relatorio_csv(investimentos, tipo="investimento", path=database, nome_arquivo="investimentos.csv")
+    
 
+    atualizar_base_csv(investimentos, tipo="investimento", path=database, nome_arquivo="investimentos.csv")
+    
+    print("Rendimento dos investimentos atualizado com sucesso.")
 
 def read_csv(path):
     """
@@ -365,7 +347,7 @@ def deletar_registro(database_path):
 
     
 
-    exportar_relatorio_csv(registros, tipo, path=database_path, nome_arquivo=arquivo)
+    atualizar_base_csv(registros, tipo, path=database_path, nome_arquivo=arquivo)
     return registros
 
 
@@ -400,7 +382,9 @@ def atualizar_registro(database_path):
             registro['Data'] = data_atual_formatada 
             registro['Tipo'] = novo_tipo
 
-    registros = exportar_relatorio_csv(registros, novo_tipo, path=database_path, nome_arquivo=arquivo)
+    registros = atualizar_base_csv(registros, novo_tipo, path=database_path, nome_arquivo=arquivo)
+    
+    print(f"Registro {id_registro} atualizado com sucesso.")
     if novo_tipo.lower() == 'investimento':
         atualizacao_do_rendimento(database_path)
 
@@ -415,44 +399,94 @@ def agrupar_movimentacoes(database_path):
 
     for chave, descricao in tipo_de_registros.items():
         print(f"{chave}. {descricao}")
-    tipo = input('Qual o tipo de registro que deseja agrupar ?')
+    tipo = input('Qual o tipo de registro que deseja agrupar? ')
     tipo_agrupamento = tipo_de_registros[int(tipo)]
-     
+
     if tipo_agrupamento in ['Receita', 'Despesa']:
         arquivo = "movimentacoes.csv"
-        registros = read_csv(f'{database_path}/{arquivo}')
-        #print(registros)
-    
     elif tipo_agrupamento == 'Investimento':
         arquivo = "investimentos.csv"
-        registros = read_csv(f'{database_path}/{arquivo}')
-        #print(registros)
+    else:
+        print("Tipo de registro inválido.")
+        return
 
-        agrupamentoinv_dia = {}
+    registros = read_csv(f'{database_path}/{arquivo}')
+
+    agrupamentoinv_dia = {}
 
     for entrada in registros:
-        data = entrada['Data']  
+        data = entrada['Data']
         valor = float(entrada['Valor'])
-        tipo = entrada['Tipo']
-        agrupamentoinv_dia[data] = {tipo_agrupamento: 0}
-        if tipo == tipo_agrupamento:
+        tipo_movimentacao = entrada['Tipo']  # Usar um nome diferente para evitar sobrescrita
+
+        if data not in agrupamentoinv_dia:
+            agrupamentoinv_dia[data] = {tipo_agrupamento: 0}
+
+        # Verifica se o tipo de movimentação é o mesmo do tipo de agrupamento
+        if tipo_movimentacao == tipo_agrupamento:
             agrupamentoinv_dia[data][tipo_agrupamento] += valor
+        else:
+            # Se já existe um agrupamento para a data, acumula o valor corretamente
+            agrupamentoinv_dia[data][tipo_agrupamento] += 0
+
     print(agrupamentoinv_dia)
+
+
+# def agrupar_movimentacoes(database_path):
+
+#     tipo_de_registros = {1: 'Receita', 2: 'Despesa', 3: 'Investimento'}
+
+#     for chave, descricao in tipo_de_registros.items():
+#         print(f"{chave}. {descricao}")
+#     tipo = input('Qual o tipo de registro que deseja agrupar ?')
+#     tipo_agrupamento = tipo_de_registros[int(tipo)]
+     
+#     if tipo_agrupamento in ['Receita', 'Despesa']:
+#         arquivo = "movimentacoes.csv"
+#         registros = read_csv(f'{database_path}/{arquivo}')
+#         #print(registros)
+    
+#     elif tipo_agrupamento == 'Investimento':
+#         arquivo = "investimentos.csv"
+#         registros = read_csv(f'{database_path}/{arquivo}')
+#         #print(registros)
+
+#     agrupamentoinv_dia = {}
+#     for entrada in registros:
+#         data = entrada['Data']
+#         valor = float(entrada['Valor'])
+#         tipo_movimentacao = entrada['Tipo']  # Usar um nome diferente para evitar sobrescrita
+
+#         if data not in agrupamentoinv_dia:
+#             agrupamentoinv_dia[data] = {tipo_agrupamento: 0}
+
+#         if tipo_movimentacao == tipo_agrupamento:
+#             agrupamentoinv_dia[data][tipo_agrupamento] += valor
+
+#     print(agrupamentoinv_dia)
     #agrupar por investimento         
 
 
-def exportar_relatorio_json(movimentacoes, formato='json', nome_arquivo='relatorio'):
-    """
-    exporta relatório de movimentações para um arquivo json
+def exportar_relatorio_csv(database_path):
 
-    Parameters:
-        movimentacoes (list): lista de movimentações
-        formato (str): formato do arquivo
-        nome_arquivo (str): nome do arquivo
-    """
+    tipo_de_registros = {1: 'Receita', 2: 'Despesa', 3: 'Investimento'}
+
+    for chave, descricao in tipo_de_registros.items():
+        print(f"{chave}. {descricao}")
+    tipo = input('Qual o tipo de registro que deseja exportar? ')
+    tipo_relatorio = tipo_de_registros[int(tipo)]
+
+    nome_arquivo = input('Insira o nome do arquivo: ')
+
+    relatorio = listar_movimentacoes(database_path="./database", data=None, tipo=tipo_relatorio)
+    keys = relatorio[0].keys()
+    with open(f'{database_path}/{nome_arquivo}_{tipo_relatorio}.csv', 'w', newline='') as file:
+        dict_writer = csv.DictWriter(file, keys)
+        dict_writer.writeheader()
+        dict_writer.writerows(relatorio)
 
 
-def exportar_relatorio_csv(movimentacoes,tipo,path='database', nome_arquivo='relatorio'):
+def atualizar_base_csv(movimentacoes,tipo,path='database', nome_arquivo='relatorio'):
     """
     exporta relatório de movimentações para um arquivo csv
 
@@ -501,4 +535,31 @@ def retornar_ultimo_id(tipo: str, path: str):
         return ultimo_id
     except (FileNotFoundError, PermissionError) as e:
         print(f'Erro ao abrir o arquivo {arquivo}: {e}')
+# %%
+
+def print_tabular_data(data):
+    if not data:
+        print("No data available to display.")
+        return
+
+    # Get the headers from the first dictionary
+    headers = list(data[0].keys())
+    
+    # Determine the column widths based on the longest data in each column
+    column_widths = [max(len(str(row[key])) for row in data) for key in headers]
+    column_widths = [max(width, len(header)) for width, header in zip(column_widths, headers)]
+
+    # Create the header row
+    header_row = "| " + " | ".join(f"{header:{width}}" for header, width in zip(headers, column_widths)) + " |"
+    separator = "-" * len(header_row)
+
+    # Print the table
+    print(separator)
+    print(header_row)
+    print(separator)
+    
+    for entry in data:
+        row = "| " + " | ".join(f"{str(entry[key]):{width}}" for key, width in zip(headers, column_widths)) + " |"
+        print(row)
+        print(separator)
 # %%

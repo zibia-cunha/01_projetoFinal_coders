@@ -22,7 +22,7 @@ def main():
     }
     acoes = {
         '1': incluir_registros_base_dados,
-        '2': incluir_de_csv,
+        '2': incluir_registros_de_arquivo_csv,
         '3': listar_movimentacoes,
         '4': atualizacao_do_rendimento,
         '5': deletar_registro,
@@ -51,6 +51,9 @@ def main():
                 path = input("Insira o caminho do arquivo csv: ")
                 base_dados = acoes[escolha](path)
                 criar_registro_movimentacao(base_dados, database_path="database")
+            elif escolha == '8':
+                print(f"\nExecutando ação: {dicionario_nomes[int(escolha)]}")
+                acoes[escolha](base_dados)
             else:
                 acoes[escolha]("./database")
         else:
