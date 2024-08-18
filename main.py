@@ -17,8 +17,7 @@ def main():
         5: "Deletar Registro",
         6: "Atualizar Registro",
         7: "Agrupar Movimentações",
-        8: "Exportar Relatório JSON",
-        9: "Exportar Reltório CSV",
+        8: "Exportar Reltório CSV",
         0: "Sair"
     }
     acoes = {
@@ -29,8 +28,7 @@ def main():
         '5': deletar_registro,
         '6': atualizar_registro,
         '7': agrupar_movimentacoes,
-        '8': exportar_relatorio_json,
-        '9': exportar_relatorio_csv
+        '8': exportar_relatorio_csv
     }
 
     base_dados = {}
@@ -40,7 +38,8 @@ def main():
         escolha = input("Escolha sua opção: ")
         if escolha == '0':
             print("Saindo do sistema...")
-            print(base_dados)
+            if len(base_dados) > 0:
+                print(base_dados)
             break
         elif escolha in acoes:
             if escolha == '1':
@@ -52,17 +51,8 @@ def main():
                 path = input("Insira o caminho do arquivo csv: ")
                 base_dados = acoes[escolha](path)
                 criar_registro_movimentacao(base_dados, database_path="database")
-            elif escolha == '3':
-                print(f"\nExecutando ação: {dicionario_nomes[int(escolha)]}")
-                acoes[escolha](base_dados)
-            elif escolha == '4':
-                print(f"\nExecutando ação: {dicionario_nomes[int(escolha)]}")
-                acoes[escolha]("./database")
-            elif escolha == '7':
-                print(f"\nExecutando ação: {dicionario_nomes[int(escolha)]}")
-                base_dados = acoes[escolha](base_dados)
             else:
-                acoes[escolha](base_dados)
+                acoes[escolha]("./database")
         else:
             print("Ação inválida. Por favor, escolha uma ação válida.")
 #%%

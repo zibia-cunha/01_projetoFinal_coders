@@ -2,6 +2,8 @@ import csv
 import os
 
 print(os.getcwd())
+os.makedirs('./database', exist_ok=True)
+
 try:
     with open('./database/movimentacoes.csv', 'x', newline='') as file:
         cabecalho = [['id', 'Data', 'Tipo', 'Valor', 'Ano', 'Mes', 'dia']]
