@@ -8,32 +8,6 @@ import random
 # data_atual_formatada = data_atual.strftime('%d/%m/%Y')
 
 #%%
-def incluir_registros_de_arquivo_csv(path):
-    """
-    inclui um registro de um arquivo csv
-
-    Returns:
-        tipo (str): tipo de movimentação
-        valor (float): valor da movimentação
-        data (str): data da movimentação
-    """
-    
-    data = read_csv(path)
-    regsitros = {}
-    for nn, registro in enumerate(data):
-        tipo = registro['Tipo de Transação']
-        if tipo in ["Receita", "Despesa"]:
-            valor = registro['Valor']
-            data = registro['Data']
-            regsitros[nn] = {'Data': data, 'Tipo': tipo, 'Valor': valor, "Ano": int(data.split('/')[0]), "Mes": int(data.split('/')[1]), "Dia": int(data.split('/')[2])}
-        else:
-            valor = registro['Valor']
-            data = registro['Data']
-            taxa = 0.003
-            regsitros[nn] = {'Data': data, 'Tipo': tipo, 'Valor': valor, "Ano": int(data.split('/')[0]), "Mes": int(data.split('/')[1]), "Dia": int(data.split('/')[2]), "Taxa": taxa}
-
-    return regsitros
-
 
 def incluir_registros_base_dados(base_dados):
     """
@@ -107,6 +81,32 @@ def incluir_registros_base_dados(base_dados):
     # print(f"Dados salvos no arquivo '{arquivo}'.")
 
     # return base_dados
+
+def incluir_registros_de_arquivo_csv(path):
+    """
+    inclui um registro de um arquivo csv
+
+    Returns:
+        tipo (str): tipo de movimentação
+        valor (float): valor da movimentação
+        data (str): data da movimentação
+    """
+    
+    data = read_csv(path)
+    regsitros = {}
+    for nn, registro in enumerate(data):
+        tipo = registro['Tipo de Transação']
+        if tipo in ["Receita", "Despesa"]:
+            valor = registro['Valor']
+            data = registro['Data']
+            regsitros[nn] = {'Data': data, 'Tipo': tipo, 'Valor': valor, "Ano": int(data.split('/')[0]), "Mes": int(data.split('/')[1]), "Dia": int(data.split('/')[2])}
+        else:
+            valor = registro['Valor']
+            data = registro['Data']
+            taxa = 0.003
+            regsitros[nn] = {'Data': data, 'Tipo': tipo, 'Valor': valor, "Ano": int(data.split('/')[0]), "Mes": int(data.split('/')[1]), "Dia": int(data.split('/')[2]), "Taxa": taxa}
+
+    return regsitros
 
 
 def criar_registro_movimentacao(parametros: dict, database_path="database"):
@@ -328,27 +328,6 @@ def atualizacao_do_rendimento(database="../database"):
     atualizar_base_csv(investimentos, tipo="investimento", path=database, nome_arquivo="investimentos.csv")
     
     print("Rendimento dos investimentos atualizado com sucesso.")
-
-def read_csv(path):
-    """
-    Lê um arquivo csv e retorna uma lista de dicionários
-
-    Parameters:
-        path (str): caminho do arquivo csv
-
-    Returns:
-        lista_de_dicionarios (list): lista de dicionários
-    """
-    try:
-        lista_de_dicionarios = []
-        with open(path, newline='') as f:
-            leitor_csv = csv.DictReader(f)
-            for linha in leitor_csv:
-                lista_de_dicionarios.append(linha)
-        return lista_de_dicionarios
-    except FileNotFoundError:
-        print(f'Arquivo {path} não encontrado.')
-        return None
 
 def deletar_registro(database_path):
     """
@@ -574,3 +553,25 @@ def print_tabular_data(data):
         print(row)
         print(separator)
 # %%
+
+
+def read_csv(path):
+    """
+    Lê um arquivo csv e retorna uma lista de dicionários
+
+    Parameters:
+        path (str): caminho do arquivo csv
+
+    Returns:
+        lista_de_dicionarios (list): lista de dicionários
+    """
+    try:
+        lista_de_dicionarios = []
+        with open(path, newline='') as f:
+            leitor_csv = csv.DictReader(f)
+            for linha in leitor_csv:
+                lista_de_dicionarios.append(linha)
+        return lista_de_dicionarios
+    except FileNotFoundError:
+        print(f'Arquivo {path} não encontrado.')
+        return None
