@@ -4,23 +4,13 @@ import os
 import csv
 import random
 
-# data_atual = datetime.now()
-# data_atual_formatada = data_atual.strftime('%d/%m/%Y')
-
 #%%
 
 def incluir_registros_base_dados(base_dados):
     """
-    Inclui registros na base de dados com um identificador único.
+    Inclui registros na base de dados com um identificador único (ID).
 
     """
-    
-    # arquivo = 'base_dados.json'
-    # try:
-    #     with open(arquivo, 'r') as file:
-    #         base_dados = json.load(file)
-    # except FileNotFoundError:
-    #     base_dados = {}
     
     tipo_de_registros = {1: 'Receita', 2: 'Despesa', 3: 'Investimento'}
 
@@ -75,21 +65,10 @@ def incluir_registros_base_dados(base_dados):
         print("Opção inválida")
     return base_dados
 
-    # with open(arquivo, 'w') as file:
-    #     json.dump(base_dados, file, indent=4)
-
-    # print(f"Dados salvos no arquivo '{arquivo}'.")
-
-    # return base_dados
-
 def incluir_registros_de_arquivo_csv(path):
     """
-    inclui um registro de um arquivo csv
+    Lê um arquivo csv para manipulação dos dados
 
-    Returns:
-        tipo (str): tipo de movimentação
-        valor (float): valor da movimentação
-        data (str): data da movimentação
     """
     
     data = read_csv(path)
