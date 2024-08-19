@@ -167,7 +167,7 @@ def criar_registro_movimentacao(parametros: dict, database_path="database"):
                 'Escolha entre: "receita", "despesa" ou "investimento"', sep='\n')
 
 
-def listar_movimentacoes(database_path="./database", data=None, tipo=None):
+def listar_movimentacoes(database_path="./database"):
     """
     Lista as movimentações
 
@@ -177,18 +177,60 @@ def listar_movimentacoes(database_path="./database", data=None, tipo=None):
     Returns:
         movimentacoes (list): lista de movimentações
     """
-    if data == None:
-        data = input('Insira a data da movimentação (dd/mm/aaaa):')
-    if tipo == None:
-        tipo = input('Insira o tipo de movimentação (receita, despesa ou investimento):')
+
+    tipo_de_registros = {1: 'Receita', 2: 'Despesa', 3: 'Investimento', 4: 'Geral'}
+
+    for chave, descricao in tipo_de_registros.items():
+        print(f"{chave}. {descricao}")
+    tipo = input('Qual o tipo de registro que deseja listar? ')
+    tipo_relatorio = tipo_de_registros[int(tipo)]
+
+    if tipo_relatorio.lower() == 'geral':
+        movimentacoes = read_csv(f'{database_path}/movimentacoes.csv')
+        movimentacoes_com_taxa_e_redimento = []
+        for reg in movimentacoes:
+            novo_reg = {
+               'id': reg['id'],
+                'Data': reg['Data'],
+                'Tipo': reg['Tipo'],
+                'Taxa': 0,
+                'Valor': reg['Valor'],
+                'Ano': reg['Ano'],
+                'Mes': reg['Mes'],
+                'Dia': reg['dia'],
+                'Montante': 0,
+                'Rendimento': 0
+            }
+
+            movimentacoes_com_taxa_e_redimento.append(novo_reg)
+
+        investimentos = read_csv(f'{database_path}/investimentos.csv')
+        print_tabular_data(movimentacoes_com_taxa_e_redimento)
+        print_tabular_data(investimentos)
+        return movimentacoes_com_taxa_e_redimento + investimentos
+
+    tipo_de_consulta = {1: 'Todos os Registos', 2: 'Data Específica'}
+    for chave, descricao in tipo_de_consulta.items():
+        print(f"{chave}. {descricao}")
+    consulta = input("Quais registros deseja consultar? ")
+    tipo_de_consulta = tipo_de_consulta[int(consulta)]
+
+    if tipo_de_consulta == 'Todos os Registos':
+        data = None
+    elif tipo_de_consulta == 'Data Específica':
+        data = input("Insira a data no formato dd/mm/aaaa: ")
     
     investimentos = read_csv(f'{database_path}/investimentos.csv')
     movimentacoes = read_csv(f'{database_path}/movimentacoes.csv')
+    
+    print(tipo_relatorio)
+    print(movimentacoes)
+
     if data:
-        if tipo.lower() in ['receita', 'despesa']:
+        if tipo_relatorio.lower() in ['receita', 'despesa']:
             registros = []
             for movimentacao in movimentacoes:
-                if movimentacao['Tipo'].lower() == tipo.lower() and movimentacao['Data'] == data:
+                if movimentacao['Tipo'].lower() == tipo_relatorio.lower() and movimentacao['Data'] == data:
                     registros.append(movimentacao)
             print_tabular_data(registros)
             return registros
@@ -200,10 +242,10 @@ def listar_movimentacoes(database_path="./database", data=None, tipo=None):
             print_tabular_data(registros)
             return registros
     else:
-        if tipo.lower() in ['receita', 'despesa']:
+        if tipo_relatorio.lower() in ['receita', 'despesa']:
             registros = []
             for movimentacao in movimentacoes:
-                if movimentacao['Tipo'].lower() == tipo.lower():
+                if movimentacao['Tipo'].lower() == tipo_relatorio.lower():
                     registros.append(movimentacao)
             print_tabular_data(registros)
             return registros
@@ -354,13 +396,13 @@ def deletar_registro(database_path):
 
 def atualizar_registro(database_path):
 
-
+    
     novo_tipo = input('Insira o novo tipo de movimentação (receita, despesa ou investimento): ')
     
-    valor = float(input('Insira o novo valor da movimentação: '))
-    
     id_registro = int(input('Insira o id do registro a ser atualizado: '))
-
+    
+    
+    
 
     data_atual_formatada = datetime.now().strftime('%d/%m/%Y')
 
@@ -373,6 +415,9 @@ def atualizar_registro(database_path):
     else:
         print('Tipo de movimentação inválida.',
               'Escolha entre: "receita", "despesa" ou "investimento"', sep='\n')
+
+    print (f'registros: {registros[id_registro-1]}')
+    valor = float(input('Insira o novo valor da movimentação: '))
 
     if novo_tipo.lower() == 'despesa':
         valor = -abs(valor)
@@ -430,57 +475,23 @@ def agrupar_movimentacoes(database_path):
             agrupamentoinv_dia[data][tipo_agrupamento] += 0
 
     print(agrupamentoinv_dia)
-
-
-# def agrupar_movimentacoes(database_path):
-
-#     tipo_de_registros = {1: 'Receita', 2: 'Despesa', 3: 'Investimento'}
-
-#     for chave, descricao in tipo_de_registros.items():
-#         print(f"{chave}. {descricao}")
-#     tipo = input('Qual o tipo de registro que deseja agrupar ?')
-#     tipo_agrupamento = tipo_de_registros[int(tipo)]
-     
-#     if tipo_agrupamento in ['Receita', 'Despesa']:
-#         arquivo = "movimentacoes.csv"
-#         registros = read_csv(f'{database_path}/{arquivo}')
-#         #print(registros)
-    
-#     elif tipo_agrupamento == 'Investimento':
-#         arquivo = "investimentos.csv"
-#         registros = read_csv(f'{database_path}/{arquivo}')
-#         #print(registros)
-
-#     agrupamentoinv_dia = {}
-#     for entrada in registros:
-#         data = entrada['Data']
-#         valor = float(entrada['Valor'])
-#         tipo_movimentacao = entrada['Tipo']  # Usar um nome diferente para evitar sobrescrita
-
-#         if data not in agrupamentoinv_dia:
-#             agrupamentoinv_dia[data] = {tipo_agrupamento: 0}
-
-#         if tipo_movimentacao == tipo_agrupamento:
-#             agrupamentoinv_dia[data][tipo_agrupamento] += valor
-
-#     print(agrupamentoinv_dia)
-    #agrupar por investimento         
+        
 
 
 def exportar_relatorio_csv(database_path):
 
-    tipo_de_registros = {1: 'Receita', 2: 'Despesa', 3: 'Investimento'}
+    # tipo_de_registros = {1: 'Receita', 2: 'Despesa', 3: 'Investimento'}
 
-    for chave, descricao in tipo_de_registros.items():
-        print(f"{chave}. {descricao}")
-    tipo = input('Qual o tipo de registro que deseja exportar? ')
-    tipo_relatorio = tipo_de_registros[int(tipo)]
-
+    # for chave, descricao in tipo_de_registros.items():
+    #     print(f"{chave}. {descricao}")
+    # tipo = input('Qual o tipo de registro que deseja exportar? ')
+    # tipo_relatorio = tipo_de_registros[int(tipo)]
+    relatorio = listar_movimentacoes(database_path="./database")
+    
     nome_arquivo = input('Insira o nome do arquivo: ')
 
-    relatorio = listar_movimentacoes(database_path="./database", data=None, tipo=tipo_relatorio)
     keys = relatorio[0].keys()
-    with open(f'{database_path}/{nome_arquivo}_{tipo_relatorio}.csv', 'w', newline='') as file:
+    with open(f'{database_path}/{nome_arquivo}.csv', 'w', newline='') as file:
         dict_writer = csv.DictWriter(file, keys)
         dict_writer.writeheader()
         dict_writer.writerows(relatorio)

@@ -51,9 +51,6 @@ def main():
                 path = input("Insira o caminho do arquivo csv: ")
                 base_dados = acoes[escolha](path)
                 criar_registro_movimentacao(base_dados, database_path="database")
-            elif escolha == '8':
-                print(f"\nExecutando ação: {dicionario_nomes[int(escolha)]}")
-                acoes[escolha](base_dados)
             else:
                 acoes[escolha]("./database")
         else:
