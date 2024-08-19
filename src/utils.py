@@ -418,43 +418,76 @@ def atualizar_registro(database_path):
 # receitas/despesas em um determinado mês, o rendimento médio dos investimentos em um dado período etc.
 
 def agrupar_movimentacoes(database_path):
-
     tipo_de_registros = {1: 'Receita', 2: 'Despesa', 3: 'Investimento'}
 
+    # Exibir opções para o usuário
+    print("Tipos de registro disponíveis:")
     for chave, descricao in tipo_de_registros.items():
         print(f"{chave}. {descricao}")
-    tipo = input('Qual o tipo de registro que deseja agrupar? ')
-    tipo_agrupamento = tipo_de_registros[int(tipo)]
 
+    # Obter e validar a escolha do usuário
+    try:
+        tipo = int(input('Qual o tipo de registro que deseja agrupar? '))
+        tipo_agrupamento = tipo_de_registros[tipo]
+    except (ValueError, KeyError):
+        print("Tipo de registro inválido.")
+        return
+
+    # Selecionar o arquivo e índices com base no tipo de registro
     if tipo_agrupamento in ['Receita', 'Despesa']:
         arquivo = "movimentacoes.csv"
+        indice_valor = 'Valor'
+        mostrar_montante = False
     elif tipo_agrupamento == 'Investimento':
         arquivo = "investimentos.csv"
+        indice_valor = 'Valor'
+        mostrar_montante = True
+        indice_montante = 'Montante'
     else:
         print("Tipo de registro inválido.")
         return
 
-    registros = read_csv(f'{database_path}/{arquivo}')
+    # Ler os registros do arquivo CSV
+    try:
+        with open(f'{database_path}/{arquivo}', mode='r', newline='', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+            registros = list(reader)
+    except FileNotFoundError:
+        print(f"Arquivo {arquivo} não encontrado no caminho especificado.")
+        return
+    except Exception as e:
+        print(f"Ocorreu um erro ao ler o arquivo: {e}")
+        return
 
-    agrupamentoinv_dia = {}
+    # Inicializar variáveis de soma total
+    soma_total = 0.0
+    soma_montante = 0.0
 
+    # Somar os valores para o tipo de agrupamento selecionado
     for entrada in registros:
-        data = entrada['Data']
-        valor = float(entrada['Valor'])
-        tipo_movimentacao = entrada['Tipo']  # Usar um nome diferente para evitar sobrescrita
+        try:
+            valor = float(entrada[indice_valor])
+            tipo_movimentacao = entrada['Tipo']
+            if mostrar_montante:
+                montante = float(entrada[indice_montante])
+            else:
+                montante = 0.0  # Não usado para Receita e Despesa
+        except (ValueError, KeyError) as e:
+            print(f"Erro ao processar a entrada: {e}")
+            continue
 
-        if data not in agrupamentoinv_dia:
-            agrupamentoinv_dia[data] = {tipo_agrupamento: 0}
-
-        # Verifica se o tipo de movimentação é o mesmo do tipo de agrupamento
+        # Somar o valor e o montante se o tipo de movimentação corresponder ao tipo de agrupamento
         if tipo_movimentacao == tipo_agrupamento:
-            agrupamentoinv_dia[data][tipo_agrupamento] += valor
-        else:
-            # Se já existe um agrupamento para a data, acumula o valor corretamente
-            agrupamentoinv_dia[data][tipo_agrupamento] += 0
+            soma_total += valor
+            if mostrar_montante:
+                soma_montante += montante
 
-    print(agrupamentoinv_dia)
-        
+    # Exibir o resultado
+    if tipo_agrupamento == 'Investimento':
+        print(f"Soma total de {tipo_agrupamento} - Valor investido: {soma_total}")
+        print(f"Soma total de {tipo_agrupamento} - Montante total: {soma_montante}")
+    else:
+        print(f"Soma total de {tipo_agrupamento}: {soma_total}")
 
 
 def exportar_relatorio_csv(database_path):
