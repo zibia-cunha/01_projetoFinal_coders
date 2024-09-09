@@ -23,4 +23,4 @@
 
 Crie valores separados para identificar a data (dia, mês, ano).
 #Atenção:
-- Não utilize a biblioteca pandas para resolução desse exercício! - Deem um nome criativo para a aplicação de vocês :)
+- Não utilize a biblioteca pandas para resolução desse exercício! 
